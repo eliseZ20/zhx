@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.conf import settings
 # Create your views here.
 
 def home(request):
@@ -55,7 +56,7 @@ def submit_post(request):
     if text:
 	    status = Status(user=user, text=text, pics=name)
 	    status.save()
-	    return redirect("/status")
+	    return redirect("{}status".format(settings.SITE_URL))
 
     return render(request, "my_post.html")
 
@@ -63,10 +64,10 @@ def submit_post(request):
 def register(request):
     try:
         username, password, email = [request.POST.get(key) for key in ("username", "password", "email")]
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.save()
-        WeChatUser.objects.create(user=user)
+        #user = User(username=username, email=email)
+        #user.set_password(password)
+        #user.save()
+        WeChatUser.objects.create(user=requset.user, email=email)
     except Exception as err:
         result = False
         message = str(err)
@@ -79,14 +80,14 @@ def register(request):
 @login_required
 def update_user(request):
     try:
-        kwargs = {key:request.POST.get(key) for key in ("motto", "region", "pic") if request.POST.get(key)}
+        kwargs = {key:request.POST.get(key) for key in ("motto", "region", "pic", "email") if request.POST.get(key)}
         WeChatUser.objects.filter(user=request.user).update(**kwargs)
 
-        email = request.POST.get("email")
-        if email:
-            we_user = User.objects.get(username=request.user.username)
-            we_user.email = email
-            we_user.save()
+        #email = request.POST.get("email")
+        #if email:
+        #   we_user = User.objects.get(username=request.user.username)
+        #    we_user.email = email
+        #    we_user.save()
 
     except Exception as err:
         result = False

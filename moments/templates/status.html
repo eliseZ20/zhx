@@ -9,14 +9,14 @@
         {% for status in statuses %}
             <div class="row">
                 <div class="col-md-2">
-                    <img src="/static/image/{{ status.user.pic }}" class="img-responsive img-thumbnail">
+                    <img src="{{ STATIC_URL }}image/{{ status.user.pic }}" class="img-responsive img-thumbnail">
                 </div>
                 <div class="col-md-10">
                     <h1 style="font-size:70px">{{ status.user }}</h1>
                     <p style="font-size:50px">{{ status.text }}</p>
                     {% if status.pics %}
                         <div class="col-md-8">
-                            <img src="/static/image/{{ status.pics }}" class="img-responsive">
+                            <img src="{{ STATIC_URL }}image/{{ status.pics }}" class="img-responsive">
                         </div>
                     {% endif %}
                     <div class="col-md-12">
