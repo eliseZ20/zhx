@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Status{% endblock %}
+{% block status %}class="active"{% endblock %}
+{% block searchbar %}value="{{ keyword }}"{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% for status in statuses %}
+            <div class="row">
+                <div class="col-md-2">
+                    <img src="/static/image/{{ status.user.pic }}" class="img-responsive img-thumbnail">
+                </div>
+                <div class="col-md-10">
+                    <h1 style="font-size:70px">{{ status.user }}</h1>
+                    <p style="font-size:50px">{{ status.text }}</p>
+                    {% if status.pics %}
+                        <div class="col-md-8">
+                            <img src="/static/image/{{ status.pics }}" class="img-responsive">
+                        </div>
+                    {% endif %}
+                    <div class="col-md-12">
+                        <p style="float:left; color:gray; font-size:30px">{{ status.pub_time|date:"m-d-Y H:i:s" }}</p>
+                        <button style="float:right;background-color:gray" class="btn btn-default" data-container="body"
+                                data-toggle="popover"
+                                data-placement="left"
+                                data-html="true"
+                                data-content="<span style='cursor:pointer' onclick='like({{ status.id }})'>
+                                           <span class='glyphicon glyphicon-heart'></span> like </span>
+                                          <span style='cursor:pointer' onclick='show_dialog({{ status.id }})'>
+                                          <span class='glyphicon glyphicon-comment'></span> comment </span>
+">
+                            <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"
+                                  style="color:white"></span></button>
+                    </div>
+                    {% if status.likes or status.comments %}
+                        <div class="col-md-12" style="background-color:gray; padding-top:20px">
+                            {% if status.likes %}
+                                <p style="font-size:30px"><span class="glyphicon glyphicon-heart-empty"
+                                                                aria-hidden="true"></span>
+                                    {% for like in status.likes %}
+                                        {{ like.author }}{% if not forloop.last %},{% endif %}
+                                    {% endfor %}</p>
+                                {% if status.comments %}
+                                    <hr>
+                                {% endif %}
+                            {% endif %}
+                            {% for comment in status.comments %}
+                                <p style="font-size:30px;cursor:pointer" onclick="delete_or_comment('{{ comment.author }}', '{{ user }}', '{{ comment.id }}', '{{ status.id }}' )">{{ comment.author }}
+                                    {% if comment.at_person %} @ {{ comment.at_person }}
+                                    {% endif %}: {{ comment.text }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
+        <div class="row">
+            <nav aria-label="Page navigation" align="right">
+                <ul class="pagination pagination-lg">
+                    {% if statuses.has_previous %}
+                        <li>
+                            <a href="?page={{ statuses.previous_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_range %}
+                        <li {% ifequal num page %}class="active"{% endifequal %}><a href="?page={{ num }}{% if keyword %}&keyword={{ keyword }}{% endif %}">{{ num }}</a></li>
+                    {% endfor %}
+
+                    {% if statuses.has_next %}
+                        <li>
+                            <a href="?page={{ statuses.next_page_number }}{% if keyword %}&keyword={{ keyword }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Comment</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" rows="3" id="text"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="comment()">send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteConfirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete Confirm</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="delete_comment()">delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+
+        function like(status_id) {
+            $.ajax({
+                url: '/like',
+                type: 'post',
+                data: {
+                    'status_id': status_id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+
+                success: function (res) {
+                    if (res['result']) {
+                        location.reload();
+                    }
+                }
+            })
+        }
+
+        function show_dialog(status_id) {
+            $("#myModal").modal()
+            $("#myModal").attr("status_id", status_id)
+        }
+
+        function comment() {
+            $.ajax({
+                url: "/comment",
+                type: "post",
+                data: {
+                    "status_id": $("#myModal").attr("status_id"),
+                    "text": $("#text").val(),
+                    "at_person": $("#myModal").attr("at_person"),
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function () {
+                    location.reload()
+                }
+            })
+        }
+
+        function delete_comment() {
+            comment_id = $("#deleteConfirm").attr("comment_id")
+            $.ajax({
+                url: "/comment/delete",
+                type: "post",
+                data: {
+                    "comment_id": comment_id,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}",
+                },
+                success: function () {
+                    location.reload()
+                }
+            })
+        }
+
+        function delete_or_comment(comment_user, user, comment_id, status_id) {
+            if (comment_user == user) {
+                $("#deleteConfirm").modal()
+                $("#deleteConfirm").attr("comment_id", comment_id)
+            } else {
+                show_dialog(status_id)
+                $("#myModal").attr("at_person", comment_user)
+                $("#myModal").find("#comment_text").attr("placeholder", "@" + comment_user)
+            }
+        }
+    </script>
+{% endblock %}
