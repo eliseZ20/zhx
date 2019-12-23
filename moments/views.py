@@ -67,7 +67,7 @@ def register(request):
         #user = User(username=username, email=email)
         #user.set_password(password)
         #user.save()
-        WeChatUser.objects.create(user=requset.user, email=email)
+        WeChatUser.objects.create(user=request.user, email=email)
     except Exception as err:
         result = False
         message = str(err)
