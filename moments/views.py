@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.conf import settings
+from blueapps.patch.settings_open_saas import  SITE_URL
 # Create your views here.
 
 def home(request):
@@ -56,7 +56,7 @@ def submit_post(request):
     if text:
 	    status = Status(user=user, text=text, pics=name)
 	    status.save()
-	    return redirect("{}status".format(settings.SITE_URL))
+	    return redirect("{}status".format(SITE_URL))
 
     return render(request, "my_post.html")
 
