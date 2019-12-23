@@ -47,7 +47,7 @@
     <script>
         function register(){
             $.ajax({
-                url:'/register',
+                url:'{{ SITE_URL }}register',
                 type:'post',
                 data:{
                     "username":$("#register_username").val(),
