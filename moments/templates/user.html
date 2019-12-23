@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-2">
-                <img id="icon" src="/static/image/{% if user.pic %}{{ user.pic }}{% else %}empty_user.jpg{% endif %}"
+                <img id="icon" src="{{ STATIC_URL }}image/{% if user.pic %}{{ user.pic }}{% else %}empty_user.jpg{% endif %}"
                      class="info img-responsive img-thumbnail">
             </div>
             <div class="col-md-10">
@@ -33,7 +33,7 @@
                 <p style="font-size:50px">Album</p>
             </div>
             <div class="col-md-8">
-                <img src="/static/image/messi.jpg" style="width:188px">
+                <img src="{{ STATIC_URL }}image/messi.jpg" style="width:188px">
             </div>
         </div>
         <hr>
@@ -41,7 +41,7 @@
     <script>
         function update_user(){
             $.ajax({
-                url:"/user/update",
+                url:"{{ SITE_URL }}user/update",
                 type:"post",
                 data:{
                     "region":$("#region").val(),
