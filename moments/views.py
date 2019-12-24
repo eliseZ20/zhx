@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
 from blueapps.patch.settings_open_saas import  SITE_URL
+from blueking.component.shortcuts import get_client_by_request
 # Create your views here.
 
 def home(request):
@@ -107,6 +108,12 @@ def like(request):
         liked.delete()
     else:
         Reply.objects.create(author=user, status=Status.objects.get(id=status_id), type="0")
+        client = get_client_by_request(request)
+        client.cmsi.send_mail(
+            recevier="1666589157@qq.com",
+            title="点赞通知",
+            content="{} 赞了你的朋友圈 {}".format(user, Status.objects.get(id=status_id).text)
+        )
     return JsonResponse({"result": True})
 
 
