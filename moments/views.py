@@ -65,9 +65,9 @@ def submit_post(request):
 def register(request):
     try:
         username, password, email = [request.POST.get(key) for key in ("username", "password", "email")]
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.save()
+        #user = User(username=username, email=email)
+        #user.set_password(password)
+        #user.save()
         WeChatUser.objects.create(user=request.user, email=email)
     except Exception as err:
         result = False
@@ -109,9 +109,10 @@ def like(request):
     else:
         Reply.objects.create(author=user, status=Status.objects.get(id=status_id), type="0")
         client = get_client_by_request(request)
-        client.cmsi.send_mail(recevier="1666589157@qq.com",
-                                title="点赞通知",
-                                content="{} 赞了你的朋友圈 {}".format(user, Status.objects.get(id=status_id).text)
+        client.cmsi.send_mail(
+            recevier="1666589157@qq.com",
+            title="点赞通知",
+            content="{} 赞了你的朋友圈 {}".format(user, Status.objects.get(id=status_id).text)
         )
     return JsonResponse({"result": True})
 
