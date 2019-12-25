@@ -25,7 +25,7 @@ DATABASES.update(
     {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': '3170932017_zhanghexiang_t',  # 数据库名
+            'NAME': '3170932017_zhanghexiang_o',  # 数据库名
             'USER': 'zhanghexiang',  # 数据库用户
             'PASSWORD': 'L4q3xSuEvWwsGJWX',  # 数据库密码
             'HOST': '10.0.2.8',  # 数据库主机

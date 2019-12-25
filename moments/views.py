@@ -110,7 +110,7 @@ def like(request):
         Reply.objects.create(author=user, status=Status.objects.get(id=status_id), type="0")
         client = get_client_by_request(request)
         client.cmsi.send_mail(
-            recevier="1666589157@qq.com",
+            recevier=Status.objects.get(id=status_id).user.email,
             title="点赞通知",
             content="{} 赞了你的朋友圈 {}".format(user, Status.objects.get(id=status_id).text)
         )
